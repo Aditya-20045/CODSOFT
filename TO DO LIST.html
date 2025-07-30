@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My To-Do List ✅</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0f9ff, #cbebff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 350px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #taskInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #addBtn {
+      padding: 10px 15px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #addBtn:hover {
+      background: #45a049;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      background: #f9f9f9;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      transition: 0.3s ease;
+    }
+
+    li.done {
+      text-decoration: line-through;
+      color: gray;
+      opacity: 0.7;
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btns button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 18px;
+      transition: transform 0.2s;
+    }
+
+    .btns button:hover {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📌 My To-Do List</h1>
+
+    <div class="input-area">
+      <input type="text" id="taskInput" placeholder="Enter a new task...">
+      <button id="addBtn">➕ Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const addBtn = document.getElementById("addBtn");
+    const taskList = document.getElementById("taskList");
+
+    document.addEventListener("DOMContentLoaded", loadTasks);
+
+    addBtn.addEventListener("click", addTask);
+    taskInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") addTask();
+    });
+
+    function addTask() {
+      const taskText = taskInput.value.trim();
+      if (taskText === "") {
+        alert("Task cannot be empty!");
+        return;
+      }
+
+      createTaskElement(taskText);
+      saveTask(taskText);
+
+      taskInput.value = "";
+    }
+
+    function createTaskElement(taskText, isDone = false) {
+      const li = document.createElement("li");
+      li.textContent = taskText;
+
+      if (isDone) li.classList.add("done");
+
+      const btnContainer = document.createElement("div");
+      btnContainer.classList.add("btns");
+
+      const doneBtn = document.createElement("button");
+      doneBtn.innerHTML = "✔";
+      doneBtn.title = "Mark as Done";
+      doneBtn.addEventListener("click", () => {
+        li.classList.toggle("done");
+        updateStorage();
+      });
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.innerHTML = "🗑";
+      deleteBtn.title = "Delete Task";
+      deleteBtn.addEventListener("click", () => {
+        li.remove();
+        updateStorage();
+      });
+
+      btnContainer.appendChild(doneBtn);
+      btnContainer.appendChild(deleteBtn);
+      li.appendChild(btnContainer);
+
+      taskList.appendChild(li);
+    }
+
+    function saveTask(taskText) {
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.push({ text: taskText, done: false });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.forEach(task => {
+        createTaskElement(task.text, task.done);
+      });
+    }
+
+    function updateStorage() {
+      let updatedTasks = [];
+      document.querySelectorAll("#taskList li").forEach(li => {
+        updatedTasks.push({
+          text: li.childNodes[0].textContent,
+          done: li.classList.contains("done")
+        });
+      });
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    }
+  </script>
+</body>
+</html>
